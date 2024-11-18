@@ -1,0 +1,62 @@
+pip install yfinance
+import yfinance as yf
+
+class Stock:
+    def __init__(self, symbol, shares):
+        self.symbol = symbol.upper()
+        self.shares = shares
+        self.price = 0.0
+        self.total_value = 0.0
+
+    def update_price(self):
+        stock_data = yf.Ticker(self.symbol)
+        self.price = stock_data.history(period='1d')['Close'][-1]
+        self.total_value = self.price * self.shares
+
+class Portfolio:
+    def __init__(self):
+        self.stocks = []
+
+    def add_stock(self, symbol, shares):
+        stock = Stock(symbol, shares)
+        stock.update_price()
+        self.stocks.append(stock)
+        print(f"Added {shares} shares of {symbol} at ${stock.price:.2f} per share")
+
+    def update_portfolio(self):
+        for stock in self.stocks:
+            stock.update_price()
+            print(f"{stock.symbol}: {stock.shares} shares at ${stock.price:.2f} each | Total: ${stock.total_value:.2f}")
+
+    def total_value(self):
+        total = sum(stock.total_value for stock in self.stocks)
+        print(f"\nTotal Portfolio Value: ${total:.2f}")
+        return total
+
+def main():
+    portfolio = Portfolio()
+
+    while True:
+        print("\nStock Portfolio Tracker")
+        print("1. Add Stock")
+        print("2. Update Portfolio")
+        print("3. View Total Value")
+        print("4. Exit")
+        choice = input("Choose an option: ")
+
+        if choice == '1':
+            symbol = input("Enter stock symbol (e.g., AAPL, TSLA): ")
+            shares = int(input(f"Enter number of shares for {symbol}: "))
+            portfolio.add_stock(symbol, shares)
+        elif choice == '2':
+            portfolio.update_portfolio()
+        elif choice == '3':
+            portfolio.total_value()
+        elif choice == '4':
+            print("Exiting the app.")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
